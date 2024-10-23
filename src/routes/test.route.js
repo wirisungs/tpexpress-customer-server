@@ -16,10 +16,10 @@ router.get('/User', async (req, res) => {
 router.post('/User', async (req, res) => {
     try {
       const { 
-        username, 
+        phonenumber, 
         password
       } = req.body;
-      const newMessage = new User({ username, password });
+      const newMessage = new User({ phonenumber, password });
       await newMessage.save();
       res.status(201).json(newMessage);
     } catch (error) {
@@ -49,14 +49,14 @@ router.post('/User', async (req, res) => {
   router.put('/User/:id', async (req, res) => {
     try {
       const { id } = req.params;
-      const { username, password } = req.body;
+      const { phonenumber, password } = req.body;
   
       if (!id) {
         return res.status(400).json({ error: 'Thiếu ID của người dùng.' });
       }
   
       // Tìm và cập nhật người dùng theo id
-      const updatedUser = await User.findByIdAndUpdate(id, { username, password }, { new: true });
+      const updatedUser = await User.findByIdAndUpdate(id, { phonenumber, password }, { new: true });
   
       if (!updatedUser) {
         return res.status(404).json({ error: 'Không tìm thấy người dùng.' });

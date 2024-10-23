@@ -10,7 +10,7 @@ router.get('/order', async (req, res) => {
 
   try {
     // Lọc đơn hàng theo Status nếu status được cung cấp
-    const orders = await Order.find(status ? { Status: status } : {});  
+    const orders = await Order.find(status ? { Status_ID: status } : {});  
     res.json(orders);
   } catch (error) {
     console.error('Lỗi khi lấy dữ liệu:', error);
@@ -18,58 +18,71 @@ router.get('/order', async (req, res) => {
   }
 });
 
+router.get('/ordersearch', async (req, res) => {
+  const { orderID } = req.query; 
 
+  try {
+    const orders = await Order.find(orderID ? { Order_ID: orderID } : {});  
+    res.json(orders);
+  } catch (error) {
+    console.error('Lỗi khi lấy dữ liệu:', error);
+    res.status(500).json({ error: 'Lỗi khi lấy dữ liệu' });
+  }
+});
 
-// router.post('/order', async (req, res) => {
-//   const { 
-//     Address, 
-//     Detail,
-//     ReceiverName,
-//     SDT,
-//     KL,
-//     SL,
-//     Width,
-//     Height,
-//     Length,
-//     Note,
-//     Code,
-//     Price,
-//     Status,
-//     driverID,
-//     Email,
-//     PTH
-//   } = req.body; 
+router.post('/order', async (req, res) => {
+  try {
+    const {
+      Order_ID,
+      Cus_ID,
+      Sender_Address,
+      Receiver_Phone,
+      Receiver_Name,
+      Receiver_Address,
+      Order_Type,
+      Order_Fragile,
+      Order_Note,
+      Order_COD,
+      Services_ID,
+      Order_TotalPrice,
+      Payment_ID,
+      Status_ID,
+      Driver_ID,  
+      Order_Date,
+      Delivery_Fee,
+      Proof_Success,
+      Order_Reason
+    } = req.body;
 
-//   if (!Address || !Detail || !ReceiverName || !SDT || !KL || !SL || !Width || !Height || !Length || !Note || !Email ||!PTH) {
-//     return res.status(400).json({ error: 'Dữ liệu không hợp lệ.' });
-//   }
+    const newOrder = new Order({
+      Order_ID,
+      Cus_ID,
+      Sender_Address,
+      Receiver_Phone,
+      Receiver_Name,
+      Receiver_Address,
+      Order_Type,
+      Order_Fragile,
+      Order_Note,
+      Order_COD,
+      Services_ID,
+      Order_TotalPrice,
+      Payment_ID,
+      Status_ID,
+      Driver_ID,  
+      Order_Date,
+      Delivery_Fee,
+      Proof_Success,
+      Order_Reason
+    });
 
-//   try {
-//     const newData = new Order({
-//       Address, 
-//       Detail,
-//       ReceiverName,
-//       SDT,
-//       KL,
-//       SL,
-//       Width,
-//       Height,
-//       Length,
-//       Note,
-//       Code,
-//       Price,
-//       Status,
-//       driverID,
-//       Email,
-//       PTH
-//     });
-//     await newData.save();
-//     res.status(201).json({ message: 'Dữ liệu đã được thêm thành công!' });
-//   } catch (error) {
-//     console.error('Lỗi khi thêm dữ liệu:', error.message);
-//     res.status(500).json({ error: 'Lỗi khi thêm dữ liệu.' });
-//   }
-// });
+    await newOrder.save();
+    res.status(201).json(newOrder);
+  } catch (error) {
+    console.error('Lỗi khi thêm dữ liệu:', error);
+    res.status(500).json({ error: 'Lỗi khi thêm dữ liệu' });
+  }
+});
 
 
 // // Thêm route PUT để cập nhật đơn hàng
