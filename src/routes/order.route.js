@@ -1,16 +1,42 @@
 const express = require('express');
-const Order = require('../controllers/order.controller.js'); 
+const Order = require('../controllers/order.controller.js');
 
 const router = express.Router();
 
-router.use(express.json()); 
+router.use(express.json());
+
+//them route tinh phi van chuyen
+router.post('/calculate-order-fee', async (req, res) => {
+  try {
+    const { weight, distance, serviceBaseFee, feePerKm, weightFee, codFee, fragileItemProtectionFee, itemPrice } = req.body;
+    if (
+      typeof weight !== 'number' ||
+      typeof distance !== 'number' ||
+      typeof serviceBaseFee !== 'number' ||
+      typeof itemPrice !== 'number'
+    ) {
+      return res.status(400).json({ error: 'Invalid input data' });
+    }
+
+    const calculatedFeePerKm = distance >= 5 ? 3.000 : feePerKm;
+    const calculatedWeightFee = weight >= 3 ? 5.000 : weightFee;
+    const calculatedCodFee = Math.max(0.02 * itemPrice, 15.000);
+    const calculatedFragileFee = fragileItemProtectionFee ? 20.000 : 0;
+
+    const fee = serviceBaseFee + (calculatedFeePerKm * distance) + (calculatedWeightFee * weight) + calculatedCodFee + calculatedFragileFee;
+    res.json({ fee });
+  } catch (error) {
+    console.error('Error calculating fee:', error);
+    res.status(500).json({ error: 'Error calculating fee' });
+  }
+});
 
 router.get('/order', async (req, res) => {
-  const { status } = req.query; 
+  const { status } = req.query;
 
   try {
     // Lọc đơn hàng theo Status nếu status được cung cấp
-    const orders = await Order.find(status ? { Status_ID: status } : {});  
+    const orders = await Order.find(status ? { Status_ID: status } : {});
     res.json(orders);
   } catch (error) {
     console.error('Lỗi khi lấy dữ liệu:', error);
@@ -19,10 +45,10 @@ router.get('/order', async (req, res) => {
 });
 
 router.get('/ordersearch', async (req, res) => {
-  const { orderID } = req.query; 
+  const { orderID } = req.query;
 
   try {
-    const orders = await Order.find(orderID ? { Order_ID: orderID } : {});  
+    const orders = await Order.find(orderID ? { Order_ID: orderID } : {});
     res.json(orders);
   } catch (error) {
     console.error('Lỗi khi lấy dữ liệu:', error);
@@ -47,7 +73,7 @@ router.post('/order', async (req, res) => {
       Order_TotalPrice,
       Payment_ID,
       Status_ID,
-      Driver_ID,  
+      Driver_ID,
       Order_Date,
       Delivery_Fee,
       Proof_Success,
@@ -69,7 +95,7 @@ router.post('/order', async (req, res) => {
       Order_TotalPrice,
       Payment_ID,
       Status_ID,
-      Driver_ID,  
+      Driver_ID,
       Order_Date,
       Delivery_Fee,
       Proof_Success,
@@ -108,4 +134,4 @@ router.post('/order', async (req, res) => {
 //   }
 // });
 
-module.exports = router; 
+module.exports = router;
