@@ -30,6 +30,33 @@ router.post('/calculate-order-fee', async (req, res) => {
     res.status(500).json({ error: 'Error calculating fee' });
   }
 });
+router.use(express.json());
+
+//thêm route tính phí vận chuyển
+router.post('/calculate-order-fee', async (req, res) => {
+  try {
+    const { weight, distance, serviceBaseFee, feePerKm, weightFee, codFee, fragileItemProtectionFee, itemPrice } = req.body;
+    if (
+      typeof weight !== 'number' ||
+      typeof distance !== 'number' ||
+      typeof serviceBaseFee !== 'number' ||
+      typeof itemPrice !== 'number'
+    ) {
+      return res.status(400).json({ error: 'Invalid input data' });
+    }
+
+    const calculatedFeePerKm = distance >= 5 ? 3.000 : feePerKm;
+    const calculatedWeightFee = weight >= 3 ? 5.000 : weightFee;
+    const calculatedCodFee = Math.max(0.02 * itemPrice, 15.000);
+    const calculatedFragileFee = fragileItemProtectionFee ? 20.000 : 0;
+
+    const fee = serviceBaseFee + (calculatedFeePerKm * distance) + (calculatedWeightFee * weight) + calculatedCodFee + calculatedFragileFee;
+    res.json({ fee });
+  } catch (error) {
+    console.error('Error calculating fee:', error);
+    res.status(500).json({ error: 'Error calculating fee' });
+  }
+});
 
 router.get('/order', async (req, res) => {
   const { status } = req.query;
@@ -133,5 +160,7 @@ router.post('/order', async (req, res) => {
 //     res.status(500).json({ error: 'Lỗi khi cập nhật đơn hàng.' });
 //   }
 // });
+
+
 
 module.exports = router;
