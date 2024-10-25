@@ -17,6 +17,7 @@ app.use(express.json());
 app.use('/api', Order);
 app.use('/api', Status);
 app.use('/api', User);
+// app.use('/api', Auth);
 
 app.listen(port, () => {
   console.log(`Customer app listening at http://localhost:${port}`);
